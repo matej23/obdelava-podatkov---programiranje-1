@@ -4,92 +4,69 @@ import re
 import os
 import csv
 
-###############################################################################
-# Najprej definirajmo nekaj pomožnih orodij za pridobivanje podatkov s spleta.
-###############################################################################
-
-# definirajte URL glavne strani bolhe za oglase z mačkami
-#cats_frontpage_url = 'https://www.basketball-reference.com/leagues/NBA_2020_per_game.html'
-# mapa, v katero bomo shranili podatke
 file_directory = 'C:/Users/matej/OneDrive/Namizje/obdelava podatkov/obdelava-podatkov---programiranje-1'
-# ime datoteke v katero bomo shranili glavno stran
 frontpage_filename = 'index_players.html'
-# ime CSV datoteke v katero bomo shranili podatke
 csv_filename = 'players.csv'
 
-
 def download_url_to_string(url):
-    """Funkcija kot argument sprejme niz in poskusi vrniti vsebino te spletne
-    strani kot niz. V primeru, da med izvajanje pride do napake vrne None.
-    """
     try:
-        # del kode, ki morda sproži napako
         r = requests.get(url)
     except requests.exceptions.ConnectionError:
-        # koda, ki se izvede pri napaki
-        # dovolj je če izpišemo opozorilo in prekinemo izvajanje funkcije
         print("Napaka pri povezovanju do:", url)
         return None
-    # nadaljujemo s kodo če ni prišlo do napake
     if r.status_code == requests.codes.ok:
         return r.text
     else:
         print("Napaka pri prenosu strani:", url)
         return None
 
-#vec sezon, zato bomo shranili v file vsako posebej
+#vec sezon, zato bomo podartke morali pobrati iz vseh sezon (razlicni linki)
 #funkcija vrze linke po sezonah v obliki seznama
 def all_seasons_url_dict(start, finish):
     dictionary_url = {}
-    #prazen seznam urljev
     for year in range(start,finish + 1):
         #dodajanje na seznam leto:url_za_leto
         dictionary_url.update({year : f'https://www.basketball-reference.com/leagues/NBA_{year}_per_game.html'})
     return dictionary_url
-#ta je okej
 
-def text_from_url_list(dictionary_url):
+#funkcija sprejme seznam elementov oblike {leto :url} in vrne tekst za posamezno leto (njegov url)
+def text_from_url_dictionary(dictionary_url):
     dictionary_year_text = {}
     for url_year in dictionary_url.keys():
         dictionary_year_text.update({url_year : download_url_to_string(dictionary_url[url_year])})
     return dictionary_year_text
-#ta je okej
 
+#shrani slovar v file 
 def save_string_to_file(directory, filename, dictionary):
-    """Funkcija zapiše vrednost parametra "text" v novo ustvarjeno datoteko
-    locirano v "directory"/"filename", ali povozi obstoječo. V primeru, da je
-    niz "directory" prazen datoteko ustvari v trenutni mapi.
-    """
-    text_dictionary = f'{text_from_url_list(dictionary)}'
+    text_dictionary = f'{text_from_url_dictionary(dictionary)}'
     os.makedirs(directory, exist_ok=True)
     path = os.path.join(directory, filename)
     with open(path, 'w', encoding='utf-8') as file_out:
         file_out.write(text_dictionary)
     return None
 
-# Definirajte funkcijo, ki prenese glavno stran in jo shrani v datoteko.
+# funkcija shrani podatke, ki jih bomo obdelovali 
 def save_frontpage(directory, filename):
-    """Funkcija vrne celotno vsebino datoteke "directory"/"filename" kot niz"""
-    save_string_to_file(directory, filename, all_seasons_url_dict(1950,1950))
+    save_string_to_file(directory, filename, all_seasons_url_dict(1980,2020))
+    #od 1980 naprej, saj so od tam naprej navedeni vsi potrebni podatki
     return None
 
 ####
 ##PRIDOBLJENI PODATKI V OBLIKI SLOVARJA {leto: html za leto} 
 ####
+##OBEDALAVA PODATKOV
+####
 
-################################################################################
-## Po pridobitvi podatkov jih želimo obdelati.
-################################################################################
-
+#prebere file v obliki niza
 def read_file_to_string(directory, filename):
-    """Funkcija vrne celotno vsebino datoteke "directory"/"filename" kot niz"""
     path = os.path.join(directory, filename)
     with open(path, 'r', encoding='utf-8') as file_in:
         return file_in.read()
 
+#string (ki bo kot slovar razvrscen po letih - ni pomembno, le za vecjo preglednost), bo spodnja funkcija razbila na posamezne igralce
+#funkcija pripravi tudi vse potrebne podatke za igralce
+
 def page_to_players(page_content):
-    """Funkcija poišče posamezne oglase, ki se nahajajo v spletni strani in
-    vrne njih seznam"""
     rx = re.compile(r'<a href="/players(?P<url_name>/\w/\w+?\d\d).html">(?P<name>.{1,30})</a></td>.+?'
                     r'data-stat="pos" >(?P<position>.*?)</td>.+?'
                     r'data-stat="fg_pct" >(?P<fg_pct>.*?)</td>.+?'
@@ -100,6 +77,7 @@ def page_to_players(page_content):
                     r'data-stat="ast_per_g" >(?P<asists>.*?)</td>.+?'
                     r'data-stat="pts_per_g" >(?P<points>.*?)</td>',
                     re.DOTALL)
+#VZOREC ZA IGRALCA
 #                    <a href="/players/y/youngth01.html">Thaddeus Young</a></td>
 #                    <td class="center " data-stat="pos" >PF</td
 #                    <td class="right " data-stat="fg_pct" >.448</td
@@ -110,85 +88,92 @@ def page_to_players(page_content):
 #                    <td class="right " data-stat="ast_per_g" >1.8</td
 #                    <td class="right " data-stat="pts_per_g" >10.3</td>
     all_players = re.findall(rx, page_content)
+    return all_players
+
+#nabor za igralce iz razlicnih sezon(igralec se lahko veckrat ponovi), ustrezno obdela in vrne slovar s povprecji za igralca    
+def final_data_players_from_seasons(all_players):
     dictionary_players = {}
     for player in all_players:
-        dictionary_players.update({player[1]:
-                        {'position': player[2],
-                        'fg_pct': player[3],
-                        'fg3_pct': player[4],
-                        'fg2_pct': player[5],
-                        'ft_pct': player[6],
-                        'rebounds': player[7],
-                        'asists': player[8],
-                        'points_per_game' : player[9]
-                        }
-                    })
+        final_data_player = {}
+        fg_pct = 0
+        fg3_pct = 0
+        fg2_pct = 0
+        ft_pct = 0
+        rebounds = 0
+        asists = 0
+        points_per_game = 0 
+        list_data_player = []
+        for player_search in all_players:
+            if player[0] == player_search[0]:
+                list_data_player.append(player_search)
+
+        for i in range(len(list_data_player)):
+            if list_data_player[i][3] != '': 
+                fg_pct += float(list_data_player[i][3])
+            else:
+                pass
+            if list_data_player[i][4] != '': 
+                fg3_pct += float(list_data_player[i][4])
+            else:
+                pass
+            if list_data_player[i][5] != '': 
+                fg2_pct += float(list_data_player[i][5])
+            else:
+                pass
+            if list_data_player[i][6] != '':
+                ft_pct += float(list_data_player[i][6])
+            else:
+                pass
+            if list_data_player[i][7] != '': 
+                rebounds += float(list_data_player[i][7])
+            else:
+                pass
+            if list_data_player[i][8] != '':
+                asists += float(list_data_player[i][8])
+            else:
+                pass
+            if list_data_player[i][9] != '':
+                points_per_game += float(list_data_player[i][9])
+            else:
+                pass
+        #sestejemo vse podatke za igralca po kategorijah po sezonah 
+        fg_pct = round(ft_pct/len(list_data_player),2)
+        fg3_pct = round(fg3_pct/len(list_data_player),2)
+        fg2_pct = round(fg2_pct/len(list_data_player),2)
+        ft_pct = round(ft_pct/len(list_data_player),2) 
+        rebounds = round(rebounds/len(list_data_player),2)
+        asists = round(asists/len(list_data_player),2)
+        points_per_game = round(points_per_game/len(list_data_player),2)
+        #delimo podatke s stevilom sezon da dobimo povprecje
+        final_data_player = {list_data_player[0][1]:
+            {'position': list_data_player[0][2],
+            'fg_pct': fg_pct,
+            'fg3_pct': fg3_pct,
+            'fg2_pct': fg2_pct,
+            'ft_pct': ft_pct,
+            'rebounds': rebounds,
+            'asists': asists,
+            'points_per_game' : points_per_game,
+            }
+        }
+        #sestavimo podatke/povprecje za posameznega igralca in podatke preusmerimo v slovar
+        dictionary_players.update(final_data_player)
     return dictionary_players
 
-save_frontpage(file_directory,frontpage_filename)
-test = read_file_to_string(file_directory,frontpage_filename)
-test_print = page_to_players(test)
-print(test_print)
+def players_from_file(filename, directory):
+    text_all = read_file_to_string(filename, directory)
+    all_players = page_to_players(text_all)
+    players_data = final_data_players_from_seasons(all_players)
+    return players_data
 
-##Najdemo lahko ime in link za posameznega igralca
-#
-## Definirajte funkcijo, ki sprejme niz, ki predstavlja vsebino spletne strani,
-# in ga razdeli na dele, kjer vsak del predstavlja en oglas. To storite s
-# pomočjo regularnih izrazov, ki označujejo začetek in konec posameznega
-# oglasa. Funkcija naj vrne seznam nizov.
+##PODATKE SHRANIMO V PRIPRAVLJENO DATOTEKO 
+#save_frontpage(file_directory, frontpage_filename)
+
+##PODATKE O IGRALCIH DOBIMO V OBLIKI SLOVARJA
+def players():
+    return players_from_file(file_directory, frontpage_filename)
 
 
-#def page_to_ads(page_content):
-#    """Funkcija poišče posamezne oglase, ki se nahajajo v spletni strani in
-#    vrne njih seznam"""
-#    rx = re.compile(r'<li class="EntityList-item EntityList-item--Regular'
-#                    r'(.*?)</article>',
-#                    re.DOTALL)
-#    ads = re.findall(rx, page_content)
-#    return ads
-#
-# Definirajte funkcijo, ki sprejme niz, ki predstavlja oglas, in izlušči
-# podatke o imenu, lokaciji, datumu objave in ceni v oglasu.
-#
-#
-#def get_dict_from_ad_block(block):
-#    """Funkcija iz niza za posamezen oglasni blok izlušči podatke o imenu,
-#    lokaciji, datumu objave in ceni ter vrne slovar, ki vsebuje ustrezne
-#    podatke"""
-#    rx = re.compile(r'<h3.*>(?P<name>.*?)</a></h3>'
-#                    r'.*?"pubdate">(?P<time>.*?)</time>'
-#                    r'.*?<strong class="price price--hrk">\s*?(?P<price>\d*)&',
-#                    re.DOTALL)
-#    data = re.search(rx, block)
-#    ad_dict = data.groupdict()
-
-# Ker nimajo vsi oglasi podatka o lokaciji, to rešimo z dodatnim vzorcem
-#    rloc = re.compile(r'Lokacija: </span>(?P<location>.*?)<br />')
-#    locdata = re.search(rloc, block)
-#    if locdata is not None:
-#        ad_dict['location'] = locdata.group('location')
-#    else:
-#        ad_dict['location'] = 'Unknown'
-#
-#    return ad_dict
-#
-## Definirajte funkcijo, ki sprejme ime in lokacijo datoteke, ki vsebuje
-## besedilo spletne strani, in vrne seznam slovarjev, ki vsebujejo podatke o
-## vseh oglasih strani.
-#
-#
-#def ads_from_file(filename, directory):
-#    """Funkcija prebere podatke v datoteki "directory"/"filename" in jih
-#   pretvori (razčleni) v pripadajoč seznam slovarjev za vsak oglas posebej."""
-#    page = read_file_to_string(filename, directory)
-#    blocks = page_to_ads(page)
-#    ads = [get_dict_from_ad_block(block) for block in blocks]
-#    return ads
-#
-#
-#def ads_frontpage():
-#    return ads_from_file(file_directory, frontpage_filename)
-#
 ################################################################################
 ## Obdelane podatke želimo sedaj shraniti.
 ################################################################################
