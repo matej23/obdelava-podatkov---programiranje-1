@@ -7,6 +7,7 @@ import csv
 file_directory = 'C:/Users/matej/OneDrive/Namizje/obdelava podatkov/obdelava-podatkov---programiranje-1'
 frontpage_filename = 'index_players.html'
 csv_filename = 'players.csv'
+csv_new_filename = 'player_final_file.csv'
 
 def download_url_to_string(url):
     try:
@@ -92,7 +93,7 @@ def page_to_players(page_content):
 
 #nabor za igralce iz razlicnih sezon(igralec se lahko veckrat ponovi), ustrezno obdela in vrne slovar s povprecji za igralca    
 def final_data_players_from_seasons(all_players):
-    dictionary_players = {}
+    list_players = []
     for player in all_players:
         final_data_player = {}
         fg_pct = 0
@@ -145,20 +146,19 @@ def final_data_players_from_seasons(all_players):
         asists = round(asists/len(list_data_player),2)
         points_per_game = round(points_per_game/len(list_data_player),2)
         #delimo podatke s stevilom sezon da dobimo povprecje
-        final_data_player = {list_data_player[0][1]:
-            {'position': list_data_player[0][2],
+        final_data_player = {"name surname":list_data_player[0][1],
+            'position': list_data_player[0][2],
             'fg_pct': fg_pct,
             'fg3_pct': fg3_pct,
             'fg2_pct': fg2_pct,
             'ft_pct': ft_pct,
             'rebounds': rebounds,
             'asists': asists,
-            'points_per_game' : points_per_game,
-            }
+            'points_per_game' : points_per_game
         }
         #sestavimo podatke/povprecje za posameznega igralca in podatke preusmerimo v slovar
-        dictionary_players.update(final_data_player)
-    return dictionary_players
+        list_players.append(final_data_player)
+    return list_players
 
 def players_from_file(filename, directory):
     text_all = read_file_to_string(filename, directory)
@@ -173,65 +173,49 @@ def players_from_file(filename, directory):
 def players():
     return players_from_file(file_directory, frontpage_filename)
 
+##SHRANJEVANJE PODATKOV 
+def write_csv(fieldnames, rows, directory, filename):
+    os.makedirs(directory, exist_ok=True)
+    path = os.path.join(directory, filename)
+    with open(path, 'w', encoding='utf-8', newline="") as csv_file:
+        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+        writer.writeheader()
+        for row in rows:
+            writer.writerow(row)
+    return None
 
-################################################################################
-## Obdelane podatke želimo sedaj shraniti.
-################################################################################
-#
-#
-#def write_csv(fieldnames, rows, directory, filename):
-#    """
-#    Funkcija v csv datoteko podano s parametroma "directory"/"filename" zapiše
-#    vrednosti v parametru "rows" pripadajoče ključem podanim v "fieldnames"
-#    """
-#    os.makedirs(directory, exist_ok=True)
-#    path = os.path.join(directory, filename)
-#    with open(path, 'w', encoding='utf-8') as csv_file:
-#        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-#        writer.writeheader()
-#        for row in rows:
-#            writer.writerow(row)
-#    return None
-#
-## Definirajte funkcijo, ki sprejme neprazen seznam slovarjev, ki predstavljajo
-## podatke iz oglasa mačke, in zapiše vse podatke v csv datoteko. Imena za
-## stolpce [fieldnames] pridobite iz slovarjev.
-#
-#
-#def write_cat_ads_to_csv(ads, directory, filename):
-#    """Funkcija vse podatke iz parametra "ads" zapiše v csv datoteko podano s
-#    parametroma "directory"/"filename". Funkcija predpostavi, da so ključi vseh
-#    slovarjev parametra ads enaki in je seznam ads neprazen."""
-#    # Stavek assert preveri da zahteva velja
-#    # Če drži se program normalno izvaja, drugače pa sproži napako
-#    # Prednost je v tem, da ga lahko pod določenimi pogoji izklopimo v
-#    # produkcijskem okolju
-#    assert ads and (all(j.keys() == ads[0].keys() for j in ads))
-#    write_csv(ads[0].keys(), ads, directory, filename)
-#
-#
-## Celoten program poženemo v glavni funkciji
-#
-#def main(redownload=True, reparse=True):
-#    """Funkcija izvede celoten del pridobivanja podatkov:
-#    1. Oglase prenese iz bolhe
-#    2. Lokalno html datoteko pretvori v lepšo predstavitev podatkov
-#    3. Podatke shrani v csv datoteko
-#    """
-#    # Najprej v lokalno datoteko shranimo glavno stran
-#    save_frontpage(file_directory, frontpage_filename)
-#
-#    # Iz lokalne (html) datoteke preberemo podatke
-#    ads = page_to_ads(read_file_to_string(file_directory, frontpage_filename))
-#    # Podatke preberemo v lepšo obliko (seznam slovarjev)
-#    ads_nice = [get_dict_from_ad_block(ad) for ad in ads]
-#    # Podatke shranimo v csv datoteko
-#    write_cat_ads_to_csv(ads_nice, file_directory, csv_filename)
-#
-#    # Dodatno: S pomočjo parametrov funkcije main omogoči nadzor, ali se
-#    # celotna spletna stran ob vsakem zagon prenese (četudi že obstaja)
-#    # in enako za pretvorbo
-#
-#
-#if __name__ == '__main__':
-#    main()
+def write_players_data_to_csv(players, directory, filename):
+    assert players and (all(j.keys() == players[0].keys() for j in players))
+    write_csv(players[0].keys(), players, directory, filename)
+
+#naredi nov csv file, ki nima podvojenih podatkov
+def no_doubles(directory, filename_old, filename_new):
+    os.makedirs(directory, exist_ok=True)
+    path1 = os.path.join(directory, filename_old) 
+    with open(path1, 'r', encoding='utf-8', newline="") as csv_file:
+        rows = csv_file.read().split('\n')
+        newrows = []
+        for row in rows:
+            if row not in newrows:
+                newrows.append(row)
+    path2 = os.path.join(directory, filename_new)
+    with open(path2, 'w', encoding='utf-8', newline="") as new_file:
+        new_file.write('\n'.join(newrows))
+        new_file.close()
+
+#POGON CELOTNEGA PROGRAMA
+def main(redownload=True, reparse=True):
+    #1.
+    save_frontpage(file_directory, frontpage_filename)
+
+    #2.
+    all_data = players()
+
+    #3.
+    write_players_data_to_csv(all_data, file_directory, csv_filename)
+
+    #4.
+    no_doubles(file_directory, csv_filename, csv_new_filename)
+
+if __name__ == '__main__':
+    main()
