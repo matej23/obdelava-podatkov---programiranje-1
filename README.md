@@ -11,9 +11,10 @@ Url novih strani: od let https://www.basketball-reference.com/leagues/NBA_1980_p
 
 # CSV DATOTEKI
 V projektu sta priloženi 2 csv datoteki, obe vsebujeta iste tipe podatkov (smiselno navedeni spodaj- podatki, ki jih bom zajel za vsakega igralca, njihov pomen pa je naveden tudi v prvi vrstici vsake izmed csv datotek).<br>
-players.csv datoteka ima zajete podatke po igralci, podatki pa se lahko v tej datoteki večkrat ponovijo (število ponovitev je odvisno od števila let, ko je igralec igral v ligi), druga datoteka, player_final_file.csv pa predstavlja iste podatke, le da je ponovitev za vsakega igralca le ena sama.
+players.csv datoteka ima zajete podatke po igralcih, podatki pa se lahko v tej datoteki večkrat ponovijo (število ponovitev je odvisno od števila let, ko je igralec igral v ligi), druga datoteka, player_final_file.csv pa predstavlja iste podatke, le da je ponovitev za vsakega igralca le ena sama.
 
 # Za vsakega igralca bom zajel:
+(ne v tem vrstnem redu)
 -ime, priimek<br>
 -pozicijo <br>
 -povprečje metov<br>
