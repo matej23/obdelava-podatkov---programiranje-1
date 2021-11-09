@@ -70,9 +70,8 @@ def save_string_to_file(directory, filename, dictionary):
 # Definirajte funkcijo, ki prenese glavno stran in jo shrani v datoteko.
 def save_frontpage(directory, filename):
     """Funkcija vrne celotno vsebino datoteke "directory"/"filename" kot niz"""
-    save_string_to_file(directory, filename, all_seasons_url_dict(1950, 2020))
+    save_string_to_file(directory, filename, all_seasons_url_dict(1950,1950))
     return None
-save_frontpage(file_directory,frontpage_filename)
 
 ####
 ##PRIDOBLJENI PODATKI V OBLIKI SLOVARJA {leto: html za leto} 
@@ -81,13 +80,57 @@ save_frontpage(file_directory,frontpage_filename)
 ################################################################################
 ## Po pridobitvi podatkov jih želimo obdelati.
 ################################################################################
-#
-#
-#def read_file_to_string(directory, filename):
-#    """Funkcija vrne celotno vsebino datoteke "directory"/"filename" kot niz"""
-#    path = os.path.join(directory, filename)
-#    with open(path, 'r', encoding='utf-8') as file_in:
-#        return file_in.read()
+
+def read_file_to_string(directory, filename):
+    """Funkcija vrne celotno vsebino datoteke "directory"/"filename" kot niz"""
+    path = os.path.join(directory, filename)
+    with open(path, 'r', encoding='utf-8') as file_in:
+        return file_in.read()
+
+def page_to_players(page_content):
+    """Funkcija poišče posamezne oglase, ki se nahajajo v spletni strani in
+    vrne njih seznam"""
+    rx = re.compile(r'<a href="/players(?P<url_name>/\w/\w+?\d\d).html">(?P<name>.{1,30})</a></td>.+?'
+                    r'data-stat="pos" >(?P<position>.*?)</td>.+?'
+                    r'data-stat="fg_pct" >(?P<fg_pct>.*?)</td>.+?'
+                    r'data-stat="fg3_pct" >(?P<fg3_pct>.*?)</td>.+?'
+                    r'data-stat="fg2_pct" >(?P<fg2_pct>.*?)</td>.+?'
+                    r'data-stat="ft_pct" >(?P<ft_pct>.*?)</td>.+?'
+                    r'data-stat="trb_per_g" >(?P<rebounds>.*?)</td>.+?'
+                    r'data-stat="ast_per_g" >(?P<asists>.*?)</td>.+?'
+                    r'data-stat="pts_per_g" >(?P<points>.*?)</td>',
+                    re.DOTALL)
+#                    <a href="/players/y/youngth01.html">Thaddeus Young</a></td>
+#                    <td class="center " data-stat="pos" >PF</td
+#                    <td class="right " data-stat="fg_pct" >.448</td
+#                    <td class="right " data-stat="fg3_pct" >.356</td
+#                    <td class="right " data-stat="fg2_pct" >.501</td
+#                    <td class="right non_qual" data-stat="ft_pct" >.583</td
+#                    <td class="right " data-stat="trb_per_g" >4.9</td>
+#                    <td class="right " data-stat="ast_per_g" >1.8</td
+#                    <td class="right " data-stat="pts_per_g" >10.3</td>
+    all_players = re.findall(rx, page_content)
+    dictionary_players = {}
+    for player in all_players:
+        dictionary_players.update({player[1]:
+                        {'position': player[2],
+                        'fg_pct': player[3],
+                        'fg3_pct': player[4],
+                        'fg2_pct': player[5],
+                        'ft_pct': player[6],
+                        'rebounds': player[7],
+                        'asists': player[8],
+                        'points_per_game' : player[9]
+                        }
+                    })
+    return dictionary_players
+
+save_frontpage(file_directory,frontpage_filename)
+test = read_file_to_string(file_directory,frontpage_filename)
+test_print = page_to_players(test)
+print(test_print)
+
+##Najdemo lahko ime in link za posameznega igralca
 #
 ## Definirajte funkcijo, ki sprejme niz, ki predstavlja vsebino spletne strani,
 # in ga razdeli na dele, kjer vsak del predstavlja en oglas. To storite s
@@ -104,8 +147,8 @@ save_frontpage(file_directory,frontpage_filename)
 #    ads = re.findall(rx, page_content)
 #    return ads
 #
-## Definirajte funkcijo, ki sprejme niz, ki predstavlja oglas, in izlušči
-## podatke o imenu, lokaciji, datumu objave in ceni v oglasu.
+# Definirajte funkcijo, ki sprejme niz, ki predstavlja oglas, in izlušči
+# podatke o imenu, lokaciji, datumu objave in ceni v oglasu.
 #
 #
 #def get_dict_from_ad_block(block):
@@ -118,8 +161,8 @@ save_frontpage(file_directory,frontpage_filename)
 #                    re.DOTALL)
 #    data = re.search(rx, block)
 #    ad_dict = data.groupdict()
-#
-#    # Ker nimajo vsi oglasi podatka o lokaciji, to rešimo z dodatnim vzorcem
+
+# Ker nimajo vsi oglasi podatka o lokaciji, to rešimo z dodatnim vzorcem
 #    rloc = re.compile(r'Lokacija: </span>(?P<location>.*?)<br />')
 #    locdata = re.search(rloc, block)
 #    if locdata is not None:
