@@ -1,0 +1,61 @@
+<tr class="full_table" ><th scope="row" class="right " data-stat="ranker" csk="524" >524</th>
+<td class="left " data-append-csv="youngth01" data-stat="player" csk="Young,Thaddeus" ><a href="/players/y/youngth01.html">Thaddeus Young</a></td>
+<td class="center " data-stat="pos" >PF</td>
+<td class="right " data-stat="age" >31</td>
+<td class="left " data-stat="team_id" ><a href="/teams/CHI/2020.html">CHI</a></td>
+<td class="right " data-stat="g" >64</td>
+<td class="right " data-stat="gs" >16</td>
+<td class="right " data-stat="mp_per_g" >24.9</td>
+<td class="right " data-stat="fg_per_g" >4.2</td>
+<td class="right " data-stat="fga_per_g" >9.4</td>
+<td class="right " data-stat="fg_pct" >.448</td>
+<td class="right " data-stat="fg3_per_g" >1.2</td>
+<td class="right " data-stat="fg3a_per_g" >3.5</td>
+<td class="right " data-stat="fg3_pct" >.356</td>
+<td class="right " data-stat="fg2_per_g" >3.0</td>
+<td class="right " data-stat="fg2a_per_g" >5.9</td>
+<td class="right " data-stat="fg2_pct" >.501</td>
+<td class="right " data-stat="efg_pct" >.513</td>
+<td class="right " data-stat="ft_per_g" >0.7</td>
+<td class="right " data-stat="fta_per_g" >1.1</td>
+<td class="right non_qual" data-stat="ft_pct" >.583</td>
+<td class="right " data-stat="orb_per_g" >1.5</td>
+<td class="right " data-stat="drb_per_g" >3.5</td>
+<td class="right " data-stat="trb_per_g" >4.9</td>
+<td class="right " data-stat="ast_per_g" >1.8</td>
+<td class="right " data-stat="stl_per_g" >1.4</td>
+<td class="right " data-stat="blk_per_g" >0.4</td>
+<td class="right " data-stat="tov_per_g" >1.6</td>
+<td class="right " data-stat="pf_per_g" >2.1</td>
+<td class="right " data-stat="pts_per_g" >10.3</td>
+
+<tr class="full_table" ><th scope="row" class="right " data-stat="ranker" csk="134" >134</th>
+<td class="left " data-append-csv="wanzebo01" data-stat="player" csk="Wanzer,Bobby" ><a href="/players/b/brownja02.html">Brown Jaylen</a>*</td>
+<td class="center " data-stat="pos" >G</td>
+<td class="right " data-stat="age" >29</td>
+<td class="left " data-stat="team_id" ><a href="/teams/ROC/1951.html">ROC</a></td>
+<td class="right " data-stat="g" >68</td>
+<td class="right iz" data-stat="gs" ></td>
+<td class="right non_qual iz" data-stat="mp_per_g" ></td>
+<td class="right non_qual" data-stat="fg_per_g" >3.7</td>
+<td class="right non_qual" data-stat="fga_per_g" >9.2</td>
+<td class="right " data-stat="fg_pct" >.401</td>
+<td class="right non_qual iz" data-stat="fg3_per_g" ></td>
+<td class="right non_qual iz" data-stat="fg3a_per_g" ></td>
+<td class="right non_qual iz" data-stat="fg3_pct" ></td>
+<td class="right non_qual" data-stat="fg2_per_g" >3.7</td>
+<td class="right non_qual" data-stat="fg2a_per_g" >9.2</td>
+<td class="right " data-stat="fg2_pct" >.401</td>
+<td class="right " data-stat="efg_pct" >.401</td>
+<td class="right non_qual" data-stat="ft_per_g" >3.4</td>
+<td class="right non_qual" data-stat="fta_per_g" >4.0</td>
+<td class="right " data-stat="ft_pct" >.850</td>
+<td class="right non_qual iz" data-stat="orb_per_g" ></td>
+<td class="right non_qual iz" data-stat="drb_per_g" ></td>
+<td class="right " data-stat="trb_per_g" >3.4</td>
+<td class="right " data-stat="ast_per_g" >2.7</td>
+<td class="right non_qual iz" data-stat="stl_per_g" ></td>
+<td class="right non_qual iz" data-stat="blk_per_g" ></td>
+<td class="right non_qual iz" data-stat="tov_per_g" ></td>
+<td class="right non_qual" data-stat="pf_per_g" >1.9</td>
+<td class="right " data-stat="pts_per_g" >10.8</td>
